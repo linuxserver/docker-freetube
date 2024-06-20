@@ -183,7 +183,7 @@ fonts-noto-core                                                               20
 fonts-urw-base35                                                              20200910-7                                 deb                          
 foreground-child                                                              3.1.1                                      npm                          
 forwarded                                                                     0.2.0                                      npm                          
-freetube                                                                      0.20.0                                     deb                          
+freetube                                                                      0.21.0                                     deb                          
 fresh                                                                         0.5.2                                      npm                          
 fs-minipass                                                                   2.1.0                                      npm                          
 fs-minipass                                                                   3.0.3                                      npm                          
