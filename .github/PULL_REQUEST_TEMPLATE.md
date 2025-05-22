@@ -1,3 +1,9 @@
+# DEPRECATION NOTICE 
+This image is deprecated. We will not offer support for this image and it will not be updated.
+
+
+We do not know an alternative to this image, but upstream does not want it built anymore. 
+
 <!--- Provide a general summary of your changes in the Title above -->
 
 [linuxserverurl]: https://linuxserver.io
