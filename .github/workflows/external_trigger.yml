@@ -4,31 +4,31 @@ on:
   workflow_dispatch:
 
 jobs:
-  external-trigger-master:
+  external-trigger-selkies:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.1.1
 
       - name: External Trigger
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/selkies'
         env:
           SKIP_EXTERNAL_TRIGGER: ${{ vars.SKIP_EXTERNAL_TRIGGER }}
         run: |
           printf "# External trigger for docker-freetube\n\n" >> $GITHUB_STEP_SUMMARY
-          if grep -q "^freetube_master_" <<< "${SKIP_EXTERNAL_TRIGGER}"; then
+          if grep -q "^freetube_selkies_" <<< "${SKIP_EXTERNAL_TRIGGER}"; then
             echo "> [!NOTE]" >> $GITHUB_STEP_SUMMARY
-            echo "> Github organizational variable \`SKIP_EXTERNAL_TRIGGER\` contains \`freetube_master_\`; will skip trigger if version matches." >> $GITHUB_STEP_SUMMARY
-          elif grep -q "^freetube_master" <<< "${SKIP_EXTERNAL_TRIGGER}"; then
+            echo "> Github organizational variable \`SKIP_EXTERNAL_TRIGGER\` contains \`freetube_selkies_\`; will skip trigger if version matches." >> $GITHUB_STEP_SUMMARY
+          elif grep -q "^freetube_selkies" <<< "${SKIP_EXTERNAL_TRIGGER}"; then
             echo "> [!WARNING]" >> $GITHUB_STEP_SUMMARY
-            echo "> Github organizational variable \`SKIP_EXTERNAL_TRIGGER\` contains \`freetube_master\`; skipping trigger." >> $GITHUB_STEP_SUMMARY
+            echo "> Github organizational variable \`SKIP_EXTERNAL_TRIGGER\` contains \`freetube_selkies\`; skipping trigger." >> $GITHUB_STEP_SUMMARY
             exit 0
           fi
           echo "> [!NOTE]" >> $GITHUB_STEP_SUMMARY
-          echo "> External trigger running off of master branch. To disable this trigger, add \`freetube_master\` into the Github organizational variable \`SKIP_EXTERNAL_TRIGGER\`." >> $GITHUB_STEP_SUMMARY
+          echo "> External trigger running off of selkies branch. To disable this trigger, add \`freetube_selkies\` into the Github organizational variable \`SKIP_EXTERNAL_TRIGGER\`." >> $GITHUB_STEP_SUMMARY
           printf "\n## Retrieving external version\n\n" >> $GITHUB_STEP_SUMMARY
           EXT_RELEASE=$(curl -u ${{ secrets.CR_USER }}:${{ secrets.CR_PAT }} -sL 'https://api.github.com/repos/FreeTubeApp/FreeTube/releases' | jq -r 'map(select(.prerelease)) | first | .id')
           echo "Type is \`custom_version_command\`" >> $GITHUB_STEP_SUMMARY
-          if grep -q "^freetube_master_${EXT_RELEASE}" <<< "${SKIP_EXTERNAL_TRIGGER}"; then
+          if grep -q "^freetube_selkies_${EXT_RELEASE}" <<< "${SKIP_EXTERNAL_TRIGGER}"; then
             echo "> [!WARNING]" >> $GITHUB_STEP_SUMMARY
             echo "> Github organizational variable \`SKIP_EXTERNAL_TRIGGER\` matches current external release; skipping trigger." >> $GITHUB_STEP_SUMMARY
             exit 0
@@ -36,7 +36,7 @@ jobs:
           if [ -z "${EXT_RELEASE}" ] || [ "${EXT_RELEASE}" == "null" ]; then
             echo "> [!WARNING]" >> $GITHUB_STEP_SUMMARY
             echo "> Can't retrieve external version, exiting" >> $GITHUB_STEP_SUMMARY
-            FAILURE_REASON="Can't retrieve external version for freetube branch master"
+            FAILURE_REASON="Can't retrieve external version for freetube branch selkies"
             GHA_TRIGGER_URL="https://github.com/linuxserver/docker-freetube/actions/runs/${{ github.run_id }}"
             curl -X POST -H "Content-Type: application/json" --data '{"avatar_url": "https://cdn.discordapp.com/avatars/354986384542662657/df91181b3f1cf0ef1592fbe18e0962d7.png","embeds": [{"color": 16711680,
               "description": "**Trigger Failed** \n**Reason:** '"${FAILURE_REASON}"' \n**Trigger URL:** '"${GHA_TRIGGER_URL}"' \n"}],
@@ -47,7 +47,7 @@ jobs:
           echo "External version: \`${EXT_RELEASE}\`" >> $GITHUB_STEP_SUMMARY
           echo "Retrieving last pushed version" >> $GITHUB_STEP_SUMMARY
           image="linuxserver/freetube"
-          tag="latest"
+          tag="selkies"
           token=$(curl -sX GET \
             "https://ghcr.io/token?scope=repository%3Alinuxserver%2Ffreetube%3Apull" \
             | jq -r '.token')
@@ -93,7 +93,7 @@ jobs:
           if [ -z "${IMAGE_VERSION}" ]; then
             echo "> [!WARNING]" >> $GITHUB_STEP_SUMMARY
             echo "Can't retrieve last pushed version, exiting" >> $GITHUB_STEP_SUMMARY
-            FAILURE_REASON="Can't retrieve last pushed version for freetube tag latest"
+            FAILURE_REASON="Can't retrieve last pushed version for freetube tag selkies"
             curl -X POST -H "Content-Type: application/json" --data '{"avatar_url": "https://cdn.discordapp.com/avatars/354986384542662657/df91181b3f1cf0ef1592fbe18e0962d7.png","embeds": [{"color": 16711680,
               "description": "**Trigger Failed** \n**Reason:** '"${FAILURE_REASON}"' \n"}],
               "username": "Github Actions"}' ${{ secrets.DISCORD_WEBHOOK }}
@@ -103,14 +103,14 @@ jobs:
           if [ "${EXT_RELEASE}" == "${IMAGE_VERSION}" ]; then
             echo "Version \`${EXT_RELEASE}\` already pushed, exiting" >> $GITHUB_STEP_SUMMARY
             exit 0
-          elif [ $(curl -s https://ci.linuxserver.io/job/Docker-Pipeline-Builders/job/docker-freetube/job/master/lastBuild/api/json | jq -r '.building') == "true" ]; then
+          elif [ $(curl -s https://ci.linuxserver.io/job/Docker-Pipeline-Builders/job/docker-freetube/job/selkies/lastBuild/api/json | jq -r '.building') == "true" ]; then
             echo "New version \`${EXT_RELEASE}\` found; but there already seems to be an active build on Jenkins; exiting" >> $GITHUB_STEP_SUMMARY
             exit 0
           else
             if [[ "${artifacts_found}" == "false" ]]; then
               echo "> [!WARNING]" >> $GITHUB_STEP_SUMMARY
               echo "> New version detected, but not all artifacts are published yet; skipping trigger" >> $GITHUB_STEP_SUMMARY
-              FAILURE_REASON="New version ${EXT_RELEASE} for freetube tag latest is detected, however not all artifacts are uploaded to upstream release yet. Will try again later."
+              FAILURE_REASON="New version ${EXT_RELEASE} for freetube tag selkies is detected, however not all artifacts are uploaded to upstream release yet. Will try again later."
               curl -X POST -H "Content-Type: application/json" --data '{"avatar_url": "https://cdn.discordapp.com/avatars/354986384542662657/df91181b3f1cf0ef1592fbe18e0962d7.png","embeds": [{"color": 9802903,
                 "description": "**Trigger Failed** \n**Reason:** '"${FAILURE_REASON}"' \n"}],
                 "username": "Github Actions"}' ${{ secrets.DISCORD_WEBHOOK }}
@@ -121,7 +121,7 @@ jobs:
                 echo "All artifacts seem to be uploaded." >> $GITHUB_STEP_SUMMARY
               fi
               response=$(curl -iX POST \
-                https://ci.linuxserver.io/job/Docker-Pipeline-Builders/job/docker-freetube/job/master/buildWithParameters?PACKAGE_CHECK=false \
+                https://ci.linuxserver.io/job/Docker-Pipeline-Builders/job/docker-freetube/job/selkies/buildWithParameters?PACKAGE_CHECK=false \
                 --user ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }} | grep -i location | sed "s|^[L|l]ocation: \(.*\)|\1|")
               echo "Jenkins [job queue url](${response%$'\r'})" >> $GITHUB_STEP_SUMMARY
               echo "Sleeping 10 seconds until job starts" >> $GITHUB_STEP_SUMMARY
@@ -136,7 +136,7 @@ jobs:
                 --data-urlencode "description=GHA external trigger https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
                 --data-urlencode "Submit=Submit"
               echo "**** Notifying Discord ****"
-              TRIGGER_REASON="A version change was detected for freetube tag latest. Old version:${IMAGE_VERSION} New version:${EXT_RELEASE}"
+              TRIGGER_REASON="A version change was detected for freetube tag selkies. Old version:${IMAGE_VERSION} New version:${EXT_RELEASE}"
               curl -X POST -H "Content-Type: application/json" --data '{"avatar_url": "https://cdn.discordapp.com/avatars/354986384542662657/df91181b3f1cf0ef1592fbe18e0962d7.png","embeds": [{"color": 9802903,
                 "description": "**Build Triggered** \n**Reason:** '"${TRIGGER_REASON}"' \n**Build URL:** '"${buildurl}display/redirect"' \n"}],
                 "username": "Github Actions"}' ${{ secrets.DISCORD_WEBHOOK }}
