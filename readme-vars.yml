@@ -2,6 +2,9 @@
 
 # project information
 project_name: freetube
+project_deprecation_status: true
+project_deprecation_message: |
+  We do not know an alternative to this image, but upstream does not want it built anymore. 
 project_url: "https://freetubeapp.io/"
 project_logo: "https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/freetube-logo.png"
 project_blurb: "[FreeTube]({{ project_url }}) is a feature-rich and user-friendly YouTube client with a focus on privacy."
